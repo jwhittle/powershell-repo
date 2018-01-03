@@ -7,7 +7,7 @@ foreach($file in $d1){
     #echo "$dir1$file"
     $prod = "$dir1$file"
     $bak = "$dir2$file"
-    echo $prod
+    #echo $prod
     #echo $bak
     #echo $(get-content "$prod")
     #echo $(get-content "$bak")
