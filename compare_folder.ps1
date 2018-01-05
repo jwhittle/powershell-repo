@@ -13,6 +13,18 @@ foreach($file in $d1){
     #echo $bak
     #echo $(get-content "$prod")
     #echo $(get-content "$bak")
+    $prod_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $prod
+    $bak_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $bak
+
+    if(Compare-Object $prod_ver $bak_ver){
+        echo $prod" --- Version Miss-Match"
+    }Else{
+       #echo $file
+       # "File IN SYNC"
+    }
+
+
+
 
     if(Compare-Object $(get-content "$prod") $(get-content "$bak")){
         echo $prod" --- File OUT of sync"
