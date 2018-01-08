@@ -41,7 +41,10 @@ function Get-Compare_File{
 
 
 
-
+if (Test-Path report.html) 
+{
+  Remove-Item report.html
+}
 
 
 
@@ -56,10 +59,10 @@ $d2 = get-childitem -path $dir2 -Recurse -Exclude $Eliminate #| ? {$_.FullName -
 
 
 
-Add-Content 'report.html' Write-Host "Number of files to compared" $d1.count
+#Add-Content 'report.html' "Number of files to compared $d1.count"
 Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH>version</TH><TH>STATUS</TH>'
 <#echo "$dir1\$d1"#>
-Invoke-Item report.html
+
 foreach($file in $d1){
 
     $prod = "$dir1$file"
@@ -71,5 +74,5 @@ foreach($file in $d1){
     Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"
 
 }
-
+Invoke-Item report.html
 
