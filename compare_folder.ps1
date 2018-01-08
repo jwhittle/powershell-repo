@@ -14,10 +14,9 @@ function Get-Compare_File_Version{
     $bak_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $bak
 
     if(Compare-Object $prod_ver $bak_ver){
-        $out = "Version Miss-Match"
+        $out = "$prod_ver / $bak_ver"
     }Else{
-       #echo $file
-       # "File IN SYNC"
+        $out = "$prod_ver / $bak_ver"
     }
     if ($out){return $out}
 
@@ -46,16 +45,21 @@ function Get-Compare_File{
 
 
 
-
-Write-Host "Report of file comparison of 
-$dir1 and 
+Add-Content 'report.html' '<HTML><BODY>'
+Add-Content 'report.html' "<CENTER><H1>Report of file comparison of <BR>
+$dir1 <BR> and <BR> 
 $dir2
+<H1></CENTER>
 "
 $d1 = get-childitem -path $dir1 -Recurse -Exclude $Eliminate #| ? {$_.FullName -inotmatch 'log*' }
 $d2 = get-childitem -path $dir2 -Recurse -Exclude $Eliminate #| ? {$_.FullName -inotmatch 'log*' }
 
-Write-Host "Number of files to compared" $d1.count
+
+
+Add-Content 'report.html' Write-Host "Number of files to compared" $d1.count
+Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH>version</TH><TH>STATUS</TH>'
 <#echo "$dir1\$d1"#>
+Invoke-Item report.html
 foreach($file in $d1){
 
     $prod = "$dir1$file"
@@ -63,8 +67,8 @@ foreach($file in $d1){
     
     $ver = Get-Compare_File_Version -prod $prod -bak $bak
     $match = Get-Compare_File -prod $prod -bak $bak
-    if ($ver -Or $match){Write-Host "$file $ver | $match"} 
-
+    #if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
+    Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"
 
 }
 
