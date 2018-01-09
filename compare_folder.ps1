@@ -14,9 +14,9 @@ function Get-Compare_File_Version{
     $bak_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $bak
 
     if(Compare-Object $prod_ver $bak_ver){
-        $out = "$prod_ver / $bak_ver"
+        $out = "<TD>$prod_ver</td><td>$bak_ver</TD>"
     }Else{
-        $out = "$prod_ver / $bak_ver"
+        $out = "<TD colspan='2'>$prod_ver</TD>"
     }
     if ($out){return $out}
 
@@ -60,7 +60,7 @@ $d2 = get-childitem -path $dir2 -Recurse -Exclude $Eliminate #| ? {$_.FullName -
 
 
 #Add-Content 'report.html' "Number of files to compared $d1.count"
-Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH>version</TH><TH>STATUS</TH>'
+Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH colspan="2">version</TH><TH>STATUS</TH>'
 <#echo "$dir1\$d1"#>
 
 foreach($file in $d1){
@@ -71,7 +71,7 @@ foreach($file in $d1){
     $ver = Get-Compare_File_Version -prod $prod -bak $bak
     $match = Get-Compare_File -prod $prod -bak $bak
     #if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
-    Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"
+    Add-Content 'report.html' "<TR><TD>$file</TD>$ver<TD>$match</TD></TR>"
 
 }
 Invoke-Item report.html
