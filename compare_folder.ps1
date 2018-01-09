@@ -72,7 +72,7 @@ foreach($file in $d1){
     $match = Get-Compare_File -prod $prod -bak $bak
     #if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
     Add-Content 'report.html' "<TR><TD>$file</TD>$ver<TD>$match</TD>"
-    if ($match){Add-Content 'report.html' "<TD><code>MOVE $prod $bak</code></TD>"}
+    if ($match){Add-Content 'report.html' "<TD><code>COPY $prod $bak</code></TD>"}
     else{Add-Content 'report.html' "<TD></TD>"}
     Add-Content 'report.html' "<TR>"
 }
