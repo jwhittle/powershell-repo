@@ -60,7 +60,7 @@ $d2 = get-childitem -path $dir2 -Recurse -Exclude $Eliminate #| ? {$_.FullName -
 
 
 #Add-Content 'report.html' "Number of files to compared $d1.count"
-Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH colspan="2">version</TH><TH>STATUS</TH>'
+Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH colspan="2">version</TH><TH>STATUS</TH><TH>move command</TH>'
 <#echo "$dir1\$d1"#>
 
 foreach($file in $d1){
@@ -71,8 +71,12 @@ foreach($file in $d1){
     $ver = Get-Compare_File_Version -prod $prod -bak $bak
     $match = Get-Compare_File -prod $prod -bak $bak
     #if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
-    Add-Content 'report.html' "<TR><TD>$file</TD>$ver<TD>$match</TD></TR>"
-
+    Add-Content 'report.html' "<TR><TD>$file</TD>$ver<TD>$match</TD>"
+    if ($match){Add-Content 'report.html' "<TD><code>MOVE $prod $bak</code></TD>"}
+    else{Add-Content 'report.html' "<TD></TD>"}
+    Add-Content 'report.html' "<TR>"
 }
+Add-Content 'report.html' "</TABLE></body></HTML>"
+
 Invoke-Item report.html
 
