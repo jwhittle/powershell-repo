@@ -1,6 +1,6 @@
 $dir1 = 'C:\Users\jwhittle\Desktop\WS01\WS01\'
 $dir2 = 'C:\Users\jwhittle\Desktop\WS01\WS11\'
-$Exclude = @("*.txt", "*.InstallLog")
+$Excludes = @("*.dll", "*.InstallLog")
 
 
 function Get-Compare_File_Version{
@@ -54,8 +54,16 @@ $dir1 <BR> and <BR>
 $dir2
 <H1></CENTER>
 "
-$d1 = get-childitem -path $dir1 -Recurse -Exclude $Eliminate #| ? {$_.FullName -inotmatch 'log*' }
-$d2 = get-childitem -path $dir2 -Recurse -Exclude $Eliminate #| ? {$_.FullName -inotmatch 'log*' }
+$d1 = get-childitem -File -path $dir1  -Recurse `
+    | Where-Object {`
+        $_.Extension -notlike ".dll" -and `
+        $_.Extension -notlike ".pdb"}
+    
+
+
+
+#-Exclude $Excludes #| ? {$_.FullName -inotmatch 'log*' }
+#$d2 = get-childitem -path $dir2 -Recurse #-Exclude $Exclude #| ? {$_.FullName -inotmatch 'log*' }
 
 
 
@@ -64,7 +72,7 @@ Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH colspan="2
 <#echo "$dir1\$d1"#>
 
 foreach($file in $d1){
-
+    #write-host $file
     $prod = "$dir1$file"
     $bak = "$dir2$file"
     
