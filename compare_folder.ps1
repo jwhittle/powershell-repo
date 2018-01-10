@@ -1,6 +1,6 @@
 $dir1 = 'C:\Users\jwhittle\Desktop\WS01\WS01\'
 $dir2 = 'C:\Users\jwhittle\Desktop\WS01\WS11\'
-$Excludes = @("*.dll", "*.InstallLog")
+
 
 
 function Get-Compare_File_Version{
@@ -39,52 +39,45 @@ function Get-Compare_File{
 
 }
 
+if (Test-Path report.html){Remove-Item report.html}
 
 
-if (Test-Path report.html) 
-{
-  Remove-Item report.html
-}
-
-
-
+#create HTML
 Add-Content 'report.html' '<HTML><BODY>'
-Add-Content 'report.html' "<CENTER><H1>Report of file comparison of <BR>
-$dir1 <BR> and <BR> 
-$dir2
-<H1></CENTER>
-"
+Add-Content 'report.html' "<CENTER>Report of file comparison of <BR><a href='file://$dir1'>$dir1</a> <BR> and <BR><a href='file://$dir2'>$dir2</a></CENTER>"
+
+#File types to exclude
 $d1 = get-childitem -File -path $dir1  -Recurse `
     | Where-Object {`
         $_.Extension -notlike ".dll" -and `
         $_.Extension -notlike ".pdb"}
-    
-
-
-
-#-Exclude $Excludes #| ? {$_.FullName -inotmatch 'log*' }
-#$d2 = get-childitem -path $dir2 -Recurse #-Exclude $Exclude #| ? {$_.FullName -inotmatch 'log*' }
-
-
 
 #Add-Content 'report.html' "Number of files to compared $d1.count"
-Add-Content 'report.html' '<CENTER><TABLE border="1"><TH>FILE</TH><TH colspan="2">version</TH><TH>STATUS</TH><TH>move command</TH>'
-<#echo "$dir1\$d1"#>
 
+#table Header
+Add-Content 'report.html' '<CENTER><TABLE border="1">'
+Add-Content 'report.html' '<TH>FILE</TH>'
+Add-Content 'report.html' '<TH colspan="2">version</TH>'
+Add-Content 'report.html' '<TH>STATUS</TH>'
+Add-Content 'report.html' '<TH>move command</TH>'
+
+#table data
 foreach($file in $d1){
     #write-host $file
     $prod = "$dir1$file"
     $bak = "$dir2$file"
     
     $ver = Get-Compare_File_Version -prod $prod -bak $bak
-    $match = Get-Compare_File -prod $prod -bak $bak
+    #$match = Get-Compare_File -prod $prod -bak $bak
     #if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
     Add-Content 'report.html' "<TR><TD>$file</TD>$ver<TD>$match</TD>"
     if ($match){Add-Content 'report.html' "<TD><code>COPY $prod $bak</code></TD>"}
     else{Add-Content 'report.html' "<TD></TD>"}
     Add-Content 'report.html' "<TR>"
 }
+#ending tags for the table
 Add-Content 'report.html' "</TABLE></body></HTML>"
 
+#open the report
 Invoke-Item report.html
 
