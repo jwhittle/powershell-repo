@@ -49,7 +49,7 @@ Add-Content 'report.html' "<CENTER>Report of file comparison of <BR><a href='fil
 #File types to exclude
 $d1 = get-childitem -File -path $dir1  -Recurse `
     | Where-Object {`
-        $_.Extension -notlike ".dll" -and `
+        #$_.Extension -notlike ".dll" -and `
         $_.Extension -notlike ".pdb"}
 
 #Add-Content 'report.html' "Number of files to compared $d1.count"
@@ -68,8 +68,8 @@ foreach($file in $d1){
     $bak = "$dir2$file"
     
     $ver = Get-Compare_File_Version -prod $prod -bak $bak
-    #$match = Get-Compare_File -prod $prod -bak $bak
-    #if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
+    $match = Get-Compare_File -prod $prod -bak $bak
+    if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
     Add-Content 'report.html' "<TR><TD>$file</TD>$ver<TD>$match</TD>"
     if ($match){Add-Content 'report.html' "<TD><code>COPY $prod $bak</code></TD>"}
     else{Add-Content 'report.html' "<TD></TD>"}
