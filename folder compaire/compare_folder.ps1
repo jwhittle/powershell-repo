@@ -10,8 +10,8 @@ function Get-Compare_File_Version{
     )
     
 
-    $prod_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $prod
-    $bak_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $bak
+    $prod_ver = & '..\bin\sigcheck.exe' "-nobanner" "-n" $prod
+    $bak_ver = & '..\bin\sigcheck.exe' "-nobanner" "-n" $bak
 
     if(Compare-Object $prod_ver $bak_ver){
         $out = "<TD>$prod_ver</td><td>$bak_ver</TD>"
