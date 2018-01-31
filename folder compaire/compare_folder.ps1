@@ -10,8 +10,8 @@ function Get-Compare_File_Version{
     )
     
 
-    $prod_ver = & '..\bin\sigcheck.exe' "-nobanner" "-n" $prod
-    $bak_ver = & '..\bin\sigcheck.exe' "-nobanner" "-n" $bak
+    $prod_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $prod
+    $bak_ver =  & '.\bin\sigcheck.exe' "-nobanner" "-n" $bak
 
     if(Compare-Object $prod_ver $bak_ver){
         $out = "<TD>$prod_ver</td><td>$bak_ver</TD>"
@@ -47,10 +47,10 @@ Add-Content 'report.html' '<HTML><BODY>'
 Add-Content 'report.html' "<CENTER>Report of file comparison of <BR><a href='file://$dir1'>$dir1</a> <BR> and <BR><a href='file://$dir2'>$dir2</a></CENTER>"
 
 #File types to exclude
-$d1 = get-childitem -File -path $dir1  -Recurse `
-    | Where-Object {`
+$d1 = get-childitem -File -path $dir1  -Recurse #`
+    #| Where-Object {`
         #$_.Extension -notlike ".dll" -and `
-        $_.Extension -notlike ".pdb"}
+        #$_.Extension -notlike ".pdb"}
 
 #Add-Content 'report.html' "Number of files to compared $d1.count"
 
@@ -68,11 +68,11 @@ foreach($file in $d1){
     $bak = "$dir2$file"
     
     $ver = Get-Compare_File_Version -prod $prod -bak $bak
-    $match = Get-Compare_File -prod $prod -bak $bak
-    if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
+    #$match = Get-Compare_File -prod $prod -bak $bak
+    #if ($ver -Or $match){Add-Content 'report.html' "<TR><TD>$file</TD><TD>$ver</TD><TD>$match</TD></TR>"} 
     Add-Content 'report.html' "<TR><TD>$file</TD>$ver<TD>$match</TD>"
-    if ($match){Add-Content 'report.html' "<TD><code>COPY $prod $bak</code></TD>"}
-    else{Add-Content 'report.html' "<TD></TD>"}
+   # if ($match){Add-Content 'report.html' "<TD><code>COPY $prod $bak</code></TD>"}
+   # else{Add-Content 'report.html' "<TD></TD>"}
     Add-Content 'report.html' "<TR>"
 }
 #ending tags for the table

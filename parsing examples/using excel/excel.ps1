@@ -18,14 +18,14 @@ $rowCELL,$colCELL = 2,6
 
 
 
-for ($i=0; $i -le $rowMax-1; $i++)
+for ($i=0; $i -le $rowMax-2; $i++)
 {
-$WH = $sheet.Cells.Item($rowWH+$i,$colWH).text
-$ZONE = $sheet.Cells.Item($rowZONE+$i,$colZONE).text
-$ROW = $sheet.Cells.Item($rowROW+$i,$colROW).text
-$BAY = $sheet.Cells.Item($rowBAY+$i,$colBAY).text
-$SHELF = $sheet.Cells.Item($rowSHELF+$i,$colSHELF).text
-$CELL = $sheet.Cells.Item($rowCELL+$i,$colCELL).text
+    $WH = $sheet.Cells.Item($rowWH+$i,$colWH).text
+    $ZONE = $sheet.Cells.Item($rowZONE+$i,$colZONE).text
+    $ROW = $sheet.Cells.Item($rowROW+$i,$colROW).text
+    $BAY = $sheet.Cells.Item($rowBAY+$i,$colBAY).text
+    $SHELF = $sheet.Cells.Item($rowSHELF+$i,$colSHELF).text
+    $CELL = $sheet.Cells.Item($rowCELL+$i,$colCELL).text
 
 Write-Host "UPDATE LOC_HEADER set something = '' where wh_num = '$WH' ZONE = '$ZONE'"
 
