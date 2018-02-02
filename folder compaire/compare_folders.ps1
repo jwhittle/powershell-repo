@@ -7,15 +7,46 @@
 $dir1 = 'C:\Users\jwhittle\Desktop\WS01\WS01\'
 $dir2 = 'C:\Users\jwhittle\Desktop\WS01\WS11\'
 
-$get_diff = 'N'  #keep set to N unless you need to compaire files by checksum.  WARNING this will slow the script...   ALOT!!
+$get_diff = 'Y'  #keep set to N unless you need to compaire files by checksum.  WARNING this will slow the script...   ALOT!!
 ######
 
 #functions
 
+function IsAscii([System.IO.FileInfo]$item){
+    begin 
+    { 
+        $validList = new-list byte
+        $validList.AddRange([byte[]] (10,13) )
+        $validList.AddRange([byte[]] (31..127) )
+    }
+
+    process
+    {
+        try 
+        {
+            $reader = $item.Open([System.IO.FileMode]::Open)
+            $bytes = new-object byte[] 1024
+            $numRead = $reader.Read($bytes, 0, $bytes.Count)
+
+            for($i=0; $i -lt $numRead; ++$i)
+            {
+                if (!$validList.Contains($bytes[$i]))
+                    { return $false }
+            }
+            $true
+        }
+        finally
+        {
+            if ($reader)
+                { $reader.Dispose() }
+        }
+    }
+}
+
+
 function Get-Compare_File_Version{
     param([string]$prod,[string]$bak)
     $ver_sync = @{}
-
     $prod_ver = & '.\bin\sigcheck.exe' "-nobanner" "-n" $prod
     $bak_ver =  & '.\bin\sigcheck.exe' "-nobanner" "-n" $bak
 
@@ -32,18 +63,15 @@ function Get-Compare_File_Version{
 }
 
 function Get-Compare_File{
-    param(
-        [string]$prod,
-        [string]$bak
-    )
+    param([string]$prod,[string]$bak)
 
     #Check files for diff
     if(Compare-Object $(get-content "$prod") $(get-content "$bak")){
-        $out = "N"
+        $diff = 'N' 
     }Else{
-        $out = "Y"
+        $diff = 'Y' 
     }
-    if ($out){return $out}
+    return $diff
 
 }
 
@@ -65,15 +93,19 @@ foreach($file in $d1){
     
     $ver_sync = @{}
 
+    #get versions of files and compaire
     $ver_sync = Get-Compare_File_Version -prod $prod -bak $bak
+    
+    if ($get_diff -eq 'Y'){
+        if ($ver_sync.prod_ver -eq 'n/a'){
+            $diff = Get-Compare_File -prod $prod -bak $bak
+            $info.Add('diff_sync',$diff)
+        }
+    }
+
     $info.Add('ver_sync',$ver_sync.ver_sync)
     $info.Add('prod_ver',$ver_sync.prod_ver)
     $info.Add('qa_ver',$ver_sync.qa_ver)
-    
-    if ($get_diff -eq 'Y'){
-        $diff = Get-Compare_File -prod $prod -bak $bak
-        $info.Add('diff',$diff)
-    }
     #build array of arrays
     $data.Add($prod,$info)
 }
@@ -102,12 +134,18 @@ function out-of-sync-table{
                 Add-Content 'report.html' "          <TD>", $end_data.prod_ver ,"</TD>" -NoNewline
                 Add-Content 'report.html' "          <TD>", $end_data.qa_ver ,"</TD>" -NoNewline
                 Add-Content 'report.html' "     </TR>"
-
+            }elseif($end_data.diff_sync -eq 'N'){
+                Add-Content 'report.html' "     <TR>"
+                Add-Content 'report.html' "          <TD>", $end_data.filename ,"</TD>" -NoNewline
+                Add-Content 'report.html' "          <TD colspan = '2'>Checksum missmatch </TD>" -NoNewline
+                #Add-Content 'report.html' "          <TD>", $end_data.qa_ver ,"</TD>" -NoNewline
+                Add-Content 'report.html' "     </TR>"
             }
         }
     }
     Add-Content 'report.html' '</tbody>'
     Add-Content 'report.html' "</TABLE>"
+    
 }
 
 function all-files-table{
@@ -128,6 +166,12 @@ function all-files-table{
         foreach($end_data in $data.$entry){
             if ($end_data.ver_sync -eq 'N'){
                 Add-Content 'report.html' '<TR class="danger">'
+            }elseif($end_data.diff_sync -eq 'N'){
+                Add-Content 'report.html' '     <TR class="danger">'
+                Add-Content 'report.html' "          <TD>", $end_data.filename ,"</TD>" -NoNewline
+                Add-Content 'report.html' "          <TD colspan = '2'>Checksum missmatch </TD>" -NoNewline
+                #Add-Content 'report.html' "          <TD>", $end_data.qa_ver ,"</TD>" -NoNewline
+                Add-Content 'report.html' "     </TR>"
             }else{
                 Add-Content 'report.html' "<TR>"
             }
