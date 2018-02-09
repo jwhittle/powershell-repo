@@ -4,6 +4,10 @@
 #$sqlConn = New-Object System.Data.SqlClient.SqlConnection
 #$sqlConn.ConnectionString = “Server=localhost\sql12;Integrated Security=true;Initial Catalog=master”
 #$sqlConn.Open()
+$config = @{
+    'logfile' = 'C:/temp/log.txt'
+    }
+
 
 $logfile = 'C:/temp/log.txt'
 $lightController = 'ExactaLightController'
@@ -61,6 +65,10 @@ function Start-Stop_Services{ #Status: Start, Stop
         write-host "wrong syntax"
     }
     #else complain and give example
+}
+
+function Restart-Linbox($ip, $name){
+log -logfile $logfile -data $info -NoNewline
 }
 
 
