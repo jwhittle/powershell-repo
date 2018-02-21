@@ -68,7 +68,9 @@ function Start-Stop_Services{ #Status: Start, Stop
 }
 
 function Restart-Linbox($ip, $name){
-log -logfile $logfile -data $info -NoNewline
+    $info = "Attepting to restart linkbox $linkbox at "+($linkboxes.$linkbox | Out-String) 
+       # log -logfile $logfile -data $info
+    log -logfile $logfile -data $info -NoNewline
 }
 
 
@@ -89,8 +91,7 @@ Function main{
     }
     log -logfile $logfile -data "######Restarting All LinkBoxes####"
     foreach ($linkbox in $linkboxes.keys){
-        $info = 'Attepting to restart linkbox $linkbox, at  ', $linkboxes.$linkbox 
-        log -logfile $logfile -data $info -NoNewline
+        Restart-Linbox -name $linkbox -ip $linkboxes.$linkbox
         #write-host '     Restart Linkbox' ,$linkbox, 'IP:', $linkboxes.$linkbox
     }
 
