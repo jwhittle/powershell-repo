@@ -20,13 +20,14 @@ foreach ($line in $data){
         ##Pull actual time - $time
         $time_patern = "- \[(.*)\]"
         $time = [regex]::Match($line, $time_patern).Groups[1].Value 
-        
-
+        $time = $time -replace "(.*):(.*)", '$1.$2'
+       
         ##Convert $time into TIME
         $provider = New-Object System.Globalization.CultureInfo "en-US"
-        $dateTime = [datetime]::ParseExact($time, 'HH:mm:ss:fff', $provider)
-        $dateTime = $dateTime -F 'HH:mm:ss:fff'
+        $dateTime = [datetime]::ParseExact($time, 'HH:mm:ss.fff', $provider)
+        $dateTime = $dateTime -F 'HH:mm:ss.fff'
         
+        #$dateTime = Get-Date "03/02/2018 $time"
         
         
         
@@ -34,29 +35,40 @@ foreach ($line in $data){
         if ($container_id -ne ''){    
             if ($container_id -eq '?'){$container_id = 'NO READ!!!'}
             
-            $start_time = '03/02/2018 12:00:00'
+            $start_time = '03/02/2018 12:00:00.00'
             $diff = NEW-TIMESPAN –Start $Start_time –End $dateTime
             #write-host "$diff"
-            write-host "$diff - $container_id - ",$time
+            write-host "DIFF: $diff - CONTAINER: $container_id - TIME",$time
             
-            #write-host $line
+
 
 
 
             $count = $data.IndexOf($line)
-            $count = $count + 2
+            $count = $count + 1
             #write-host "$line"
-            #write-host "2 LINES BELOW  $data[$count]"
+            $found_in_memory = $data[$count]
+            # ##Pull actual time - $time
+            $time_patern = "- \[(.*)\]"
+            
+            $found_in_memory_time = [regex]::Match($found_in_memory, $time_patern).Groups[1].Value 
+            $found_in_memory_time = $found_in_memory_time -replace "(.*):(.*)", '$1.$2'
+            write-host "In Memory:                                    $found_in_memory_time"
+
+
+
+            $seconds1 = ([TimeSpan]::Parse($time)).TotalMilliseconds
+            $seconds2 = ([TimeSpan]::Parse($found_in_memory_time)).TotalMilliseconds
+
+            $diff = $seconds2 - $seconds1
+            
+    
+            write-host "Diff:                                         $diff" 
+
+
+
         }
-
-
-
-
-
-
-
- 
-
+        
     }
 }
 
