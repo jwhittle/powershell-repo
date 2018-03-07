@@ -15,35 +15,26 @@ $log =  'C:\Users\jwhittle\Desktop\powershell-repo\parsing examples\ecomm\output
 $data = Get-Content $file
 
 
-$ip_list = @()
+$ip_list = @()                                                #create the blank array of ips
 foreach ($line in $data){
-    if ($line -like '*bingbot*'){
-        if ($line -notlike '* 200 0 0 *'){
-            #Write-host "$rline"
-        
-        
-            $split = $line.Split('-') 
-        
-            #Add-Content $log "$line"
-            $ip_patern = " - 443 Anonymous (.*) Mozilla/5.0"
-            $ip = [regex]::Match($line, $ip_patern).Groups[1].Value
-            #write-host "$ip"
-            if ($ip -ne ''){
-                $octet = $ip.Split('.')
-                if ($octet[0] -ne '10'){
-                    $ip_list += $ip
+    if ($line -like '*bingbot*'){                             #look form lines With Bingbot
+        if ($line -notlike '* 200 0 0 *'){                    #igore lines that end with '200 0 0'
+            $ip_patern = " - 443 Anonymous (.*) Mozilla/5.0"  #how do I find the ip
+            $ip = [regex]::Match($line, $ip_patern).Groups[1].Value #extract the ip
+            if ($ip -ne ''){                                  #clean up
+                $octet = $ip.Split('.')                       #get the 1st octet from the ip
+                if ($octet[0] -ne '10'){                      #ignore the 10.
+                    $ip_list += $ip                           #add it to the array
                 }
             }
-            #write-host $split[1]
         }
     }
 }
 
 
-$ip_list = $ip_list | Sort-Object | Get-Unique
+$ip_list = $ip_list | Sort-Object | Get-Unique               #get unique ips
 #write-host $ip_list
-foreach ($ip in $ip_list){
-
-
+foreach ($ip in $ip_list){                                   #write them out
     write-host "|$ip|"
+    Add-Content $log "$ip"
 }
