@@ -1,5 +1,5 @@
 ﻿#get list of services
-
+#this is the J&J Branch
 
 #$sqlConn = New-Object System.Data.SqlClient.SqlConnection
 #$sqlConn.ConnectionString = “Server=localhost\sql12;Integrated Security=true;Initial Catalog=master”
