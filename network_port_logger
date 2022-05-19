@@ -1,0 +1,29 @@
+$ipaddress = '192.168.40.113'
+$port = 15023
+$pathToLog = "C:\temp\netstat_log.txt"
+
+cls
+write-host "DO NOT CLOSE"
+write-host "Bastian Solutions script to log network ports being blocked"
+
+while ($true) {
+$ports = Get-NetTCPConnection -LocalPort 15023 -LocalAddress $ipaddress
+foreach ($port in $ports){
+    #write-host $port.State
+
+    if ($port.State -eq 'Established'){
+        #$logline = "$(Get-Date), " + $port.OwningProcess + ' ' + $port.RemoteAddress + ' ' + $port.RemotePort
+        #Write-Host $logline
+    }else{
+        if ($port.State -eq 'Listen'){
+        }else{
+            $logline = "$(Get-Date), " + $port.OwningProcess + ' ' + $port.RemoteAddress + ' ' + $port.RemotePort
+            Add-content $pathToLog -value $logline
+        }
+    }
+
+}
+
+    sleep 5
+}
+
