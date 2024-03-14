@@ -58,6 +58,6 @@ $WorkitemNumber = Get-WorkitemNumber
 $BackupFolder = Create-FolderStructure -WorkitemNumber $WorkitemNumber -PromotefolderPath $PromotefolderPath
 
 
-#Copy-FilesToBackup -SourcePath $SourcePath -DestinationPath $BackupFolder
+Copy-FilesToBackup -SourcePath $SourcePath -DestinationPath $BackupFolder
 
 Write-Host "Files copied successfully."
