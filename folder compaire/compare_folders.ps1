@@ -20,8 +20,14 @@ function Compare-FolderVersions {
     $files1 = Get-ChildItem -Path $folderPath1 -Recurse | Where-Object {!$_.PSIsContainer}
     $files2 = Get-ChildItem -Path $folderPath2 -Recurse | Where-Object {!$_.PSIsContainer}
 
+    $totalFiles = $files1.Count
+    $currentFile = 0
+
     # Iterate through each file and compare versions
     foreach ($file1 in $files1) {
+        $currentFile++
+        Write-Progress -Activity "Comparing files" -Status "$currentFile of $totalFiles" -PercentComplete (($currentFile / $totalFiles) * 100)
+
         $relativePath = $file1.FullName.Substring($folderPath1.Length + 0)
         
         $file2 = $files2 | Where-Object {$_.FullName -eq (Join-Path -Path $folderPath2 -ChildPath $relativePath)}
@@ -50,7 +56,7 @@ function Compare-FolderVersions {
             Write-Host "File not found in folder 2: $relativePath" -ForegroundColor Green
         }
     }
-
+    Write-Progress -Activity "Comparing files" -Completed
     # Check for new files in folder 2 not present in folder 1
     foreach ($file2 in $files2) {
         $relativePath = $file2.FullName.Substring($folderPath2.Length + 0)
@@ -61,6 +67,7 @@ function Compare-FolderVersions {
         }
     }
 }
+
 
 # Example usage:
 Compare-FolderVersions -folderPath1 $dir1 -folderPath2 $dir2
