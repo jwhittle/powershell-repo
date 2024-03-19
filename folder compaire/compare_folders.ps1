@@ -6,7 +6,17 @@
 # Parameters
 $dir1 = 'C:\Users\whitt\Desktop\Test\A\'   #backup
 $dir2 = 'C:\Users\whitt\Desktop\Test\B\'   #prod
+$LogFilePath = "C:\Users\whitt\Desktop\file.log"
 
+
+function Write-Log {
+    param(
+        [string]$Message
+    )
+
+    # Add the log entry to the array
+    $LogEntries += "[" + (Get-Date).ToString() + "] " + $Message
+}
 
 function Compare-FolderVersions {
     param(
@@ -15,7 +25,7 @@ function Compare-FolderVersions {
     )
 
     Write-Host "Folder Comparison Report"
-
+    Write-Log "Starting Folder Comparison Report"
     # Get all files recursively from both folders
     $files1 = Get-ChildItem -Path $folderPath1 -Recurse | Where-Object {!$_.PSIsContainer}
     $files2 = Get-ChildItem -Path $folderPath2 -Recurse | Where-Object {!$_.PSIsContainer}
@@ -70,6 +80,7 @@ function Compare-FolderVersions {
 
 
 # Example usage:
-Compare-FolderVersions -folderPath1 $dir1 -folderPath2 $dir2
 
+Compare-FolderVersions -folderPath1 $dir1 -folderPath2 $dir2
+$LogEntries | Out-File -FilePath $LogFilePath
 
