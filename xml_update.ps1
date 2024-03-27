@@ -13,7 +13,6 @@ function Write-Log {
     Add-Content -Path $LogPath -Value $logEntry
 }
 
-
 function Update-ExactaAutomationService {
     param (
         [string]$filePath,
@@ -28,22 +27,19 @@ function Update-ExactaAutomationService {
     # Load the XML file
     $xml = [xml](Get-Content $filePath)
 
-    # Find the ExactaAutomationService element
-    $exactaAutomation = $xml.configuration.wcfServices.services.add | Where-Object { $_.key -eq "ExactaAutomationService" }
+    # Find all elements with a 'key' attribute
+    $elements = $xml.configuration.wcfServices.services.add | Where-Object { $_.key }
 
-    if ($exactaAutomation -ne $null) {
+    foreach ($element in $elements) {
         # Check if maxReceivedMessageSize attribute exists
-        if ($exactaAutomation.maxReceivedMessageSize) {
+        if ($element.maxReceivedMessageSize) {
             # Update the maxReceivedMessageSize attribute value
-            $exactaAutomation.maxReceivedMessageSize = "2147483647"
+            $element.maxReceivedMessageSize = "2147483647"
         } else {
             # Add maxReceivedMessageSize attribute
-            $exactaAutomation.SetAttribute("maxReceivedMessageSize", "2147483647")
+            $element.SetAttribute("maxReceivedMessageSize", "2147483647")
         }
-    } else {
-        Write-Host "ExactaAutomationService element not found in the XML."
     }
-    
 
     # Save the updated XML back to the file
     $xmlWriterSettings = New-Object System.Xml.XmlWriterSettings
