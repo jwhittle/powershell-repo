@@ -15,10 +15,19 @@
     - main: The main function that orchestrates the execution of the script.
 #>
 
+
+$parameters = @{
+    FilePath = "C:\Users\whitt\Downloads\ExactaWCFService.config"
+    BackupPath = "C:\Users\whitt\Downloads\ExactaWCFService.config.bak"
+    LogPath = "C:\temp\script.log"
+}
+
+
+
 function Write-Log {
     param (
         [string]$Message,
-        [string]$LogPath = "C:\Temp\script.log"
+        [string]$LogPath = $parameters.LogPath
     )
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -33,8 +42,8 @@ function Backup-File {
         [string]$BackupPath
     )
     #check if the file exists
-    if (-not (Test-Path -Path $FilePath)) {
-        Write-Log -Message "Checking for Previous Backup: $FilePath Not Found"
+    if (-not (Test-Path -Path $BackupPath)) {
+        Write-Log -Message "Checking for Previous Backup: $BackupPath Not Found" -LogPath $parameters.LogPath
         
         # Create a backup of the file
         Copy-Item -Path $FilePath -Destination $BackupPath -Force
@@ -49,11 +58,11 @@ function Backup-File {
             return "FAILED"
         }
     }else{
-        Write-Log -Message "Checking for Previous Backup: $FilePath Found"
-        Write-Host "Previous Backup Exist!! please Verify $FilePath" -ForegroundColor Red
+        Write-Log -Message "Checking for Previous Backup: $BackupPath Found"  -LogPath $parameters.LogPath
+        Write-Host "Previous Backup Exist!! please Verify $BackupPath" -ForegroundColor Red
         Write-Host "__________________________________________________________________________________" -ForegroundColor Red
         Write-Host "This script will create a backup file of the config, but it there is a backup preexisting the script will not continue." -ForegroundColor Yellow
-        Write-Host "Please Remove or Rename $FilePath and rerun the script" -ForegroundColor Yellow
+        Write-Host "Please Remove or Rename $FPackupPath and rerun the script" -ForegroundColor Yellow
         return "Failed"
     }
 
@@ -82,26 +91,26 @@ function Update-ExactaAutomationService {
 
     # Load the XML file
     $xml = [xml](Get-Content $filePath)
-    Write-Log -Message "Loaded XML file: $filePath"
+    Write-Log -Message "Loaded XML file: $filePath"  -LogPath $parameters.LogPath
     # Find all elements with a 'key' attribute
     $elements = $xml.configuration.wcfServices.services.add | Where-Object { $_.key }
-    Write-Log -Message "Found $($elements.Count) elements with a 'key' attribute in the XML file"
+    Write-Log -Message "Found $($elements.Count) elements with a 'key' attribute in the XML file"  -LogPath $parameters.LogPath
     foreach ($element in $elements) {
-        Write-Log -Message "Processing element with key: $($element.key)"
+        Write-Log -Message "Processing element with key: $($element.key)"  -LogPath $parameters.LogPath
         # Check if maxReceivedMessageSize attribute exists
         if ($element.maxReceivedMessageSize) {
-            Write-Log -Message "maxReceivedMessageSize attribute exists in element with key: $($element.key)"
+            Write-Log -Message "maxReceivedMessageSize attribute exists in element with key: $($element.key)"  -LogPath $parameters.LogPath
             # Update the maxReceivedMessageSize attribute value
             $element.maxReceivedMessageSize = "2147483647"
         } else {
-            Write-Log -Message "maxReceivedMessageSize attribute does not exist in element with key: $($element.key)"
+            Write-Log -Message "maxReceivedMessageSize attribute does not exist in element with key: $($element.key)"  -LogPath $parameters.LogPath
             # Add maxReceivedMessageSize attribute
             $element.SetAttribute("maxReceivedMessageSize", "2147483647")
         }
     }
 
     # Save the updated XML back to the file
-    Write-Log -Message "Saving updated XML file: $filePath"
+    Write-Log -Message "Saving updated XML file: $filePath"  -LogPath $parameters.LogPath
     $xmlWriterSettings = New-Object System.Xml.XmlWriterSettings
     $xmlWriterSettings.Indent = $true
     $xmlWriterSettings.NewLineOnAttributes = $true
@@ -113,47 +122,46 @@ function Update-ExactaAutomationService {
 
 function Stop-ExactaServices {
     # Get all services that start with 'Exacta'
-    Write-Log -Message "Getting services that start with 'Exacta'"
+    Write-Log -Message "Getting services that start with 'Exacta'"  -LogPath $parameters.LogPath
     $services = Get-Service | Where-Object { $_.Name -like 'Exacta*' }
 
     # Stop each service and verify it is stopped
     foreach ($service in $services) {
-        Write-Log -Message "Stopping service: $($service.Name)"
+        Write-Log -Message "Stopping service: $($service.Name)"  -LogPath $parameters.LogPath
         Stop-Service -Name $service.Name
         do {
-            Write-Log -Message "Waiting for service to stop: $($service.Name)"
+            Write-Log -Message "Waiting for service to stop: $($service.Name)"  -LogPath $parameters.LogPath
             Start-Sleep -Milliseconds 500
             $serviceStatus = Get-Service -Name $service.Name
         } while ($serviceStatus.Status -ne 'Stopped')
 
         # Log the service stop
-        Write-Log -Message "Stopped service: $($service.Name)"
+        Write-Log -Message "Stopped service: $($service.Name)"  -LogPath $parameters.LogPath
     }
 }
 
 function main {
+    cls
     # Stop the Exacta services
-    Write-Log -Message "Stopping Exacta services"
+    Write-Log -Message "Stopping Exacta services"  -LogPath $parameters.LogPath
     Stop-ExactaServices
 
     # Update the ExactaAutomationService configuration
-    $filePath = "C:\Users\whitt\Downloads\ExactaWCFService.config"
-    $backupPath = "C:\Users\whitt\Downloads\ExactaWCFService.config.bak"
-
-    Write-Log -Message "Creating backup of configuration file"
-    $backupStatus = Backup-File -FilePath $filePath -BackupPath $backupPath
+   
+    Write-Log -Message "Creating backup of configuration file"  -LogPath $parameters.LogPath
+    $backupStatus = Backup-File -FilePath $parameters.FilePath -BackupPath $parameters.BackupPath
     
     if ($backupStatus -eq "SUCCESS") {
-        Write-Log -Message "Updating ExactaAutomationService configuration"
-        Update-ExactaAutomationService -filePath $filePath -backupPath $backupPath
+        Write-Log -Message "Updating ExactaAutomationService configuration"  -LogPath $parameters.LogPath
+        Update-ExactaAutomationService -filePath $parameters.FilePath -backupPath $parameters.BackupPath
     } else {
-        Write-Log -Message "Failed to create backup of configuration file"
+        Write-Log -Message "Failed to create backup of configuration file"  -LogPath $parameters.LogPath
         Write-Host "Failed to create backup of configuration file" -ForegroundColor Red
     }
   
 
     # Start the Exacta services
-    Write-Log -Message "Starting Exacta services"
+    Write-Log -Message "Starting Exacta services"  -LogPath $parameters.LogPath
     Start-Service -Name "Exacta*"
 }
 
