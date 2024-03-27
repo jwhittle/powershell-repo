@@ -2,12 +2,34 @@
 # Version: 3.0
 # Description: File Comparison script
 
+<#
+.SYNOPSIS
+    Compares two folders and detects differences in file versions and content.
+
+.DESCRIPTION
+    This script compares two folders and detects differences in file versions and content.
+    It recursively scans both folders and compares each file's version and content.
+    It also checks for new files present in the second folder but not in the first folder.
+
+.PARAMETER folderPath1
+    The path to the first folder to compare.
+
+.PARAMETER folderPath2
+    The path to the second folder to compare.
+
+.EXAMPLE
+    Compare-FolderVersions -folderPath1 'C:\Users\whitt\Desktop\Test\A\' -folderPath2 'C:\Users\whitt\Desktop\Test\B\'
+    This example compares the folders 'C:\Users\whitt\Desktop\Test\A\' and 'C:\Users\whitt\Desktop\Test\B\'.
+
+.OUTPUTS
+    None. The script writes the comparison results to the console and logs them to a file.
+
+#>
 
 # Parameters
 $dir1 = 'C:\Users\whitt\Desktop\Test\A\'   #backup
 $dir2 = 'C:\Users\whitt\Desktop\Test\B\'   #prod
 $LogFilePath = "C:\Users\whitt\Desktop\file.log"
-
 
 function Write-Log {
     param(
@@ -78,9 +100,6 @@ function Compare-FolderVersions {
     }
 }
 
-
 # Example usage:
-
 Compare-FolderVersions -folderPath1 $dir1 -folderPath2 $dir2
 $LogEntries | Out-File -FilePath $LogFilePath
-
