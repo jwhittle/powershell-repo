@@ -30,16 +30,20 @@ function Update-ExactaAutomationService {
 
     # Find the ExactaAutomationService element
     $exactaAutomation = $xml.configuration.wcfServices.services.add | Where-Object { $_.key -eq "ExactaAutomationService" }
-    Write-Host "HERE!"
 
-    # Check if maxReceivedMessageSize attribute exists
-    if ($exactaAutomation.maxReceivedMessageSize) {
-        # Update the maxReceivedMessageSize attribute value
-        $exactaAutomation.maxReceivedMessageSize = "2147483647"
+    if ($exactaAutomation -ne $null) {
+        # Check if maxReceivedMessageSize attribute exists
+        if ($exactaAutomation.maxReceivedMessageSize) {
+            # Update the maxReceivedMessageSize attribute value
+            $exactaAutomation.maxReceivedMessageSize = "2147483647"
+        } else {
+            # Add maxReceivedMessageSize attribute
+            $exactaAutomation.SetAttribute("maxReceivedMessageSize", "2147483647")
+        }
     } else {
-        # Add maxReceivedMessageSize attribute
-        $exactaAutomation.SetAttribute("maxReceivedMessageSize", "2147483647")
+        Write-Host "ExactaAutomationService element not found in the XML."
     }
+    
 
     # Save the updated XML back to the file
     $xmlWriterSettings = New-Object System.Xml.XmlWriterSettings
