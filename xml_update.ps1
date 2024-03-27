@@ -32,6 +32,31 @@ function Backup-File {
         [string]$FilePath,
         [string]$BackupPath
     )
+    #check if the file exists
+    if (-not (Test-Path -Path $FilePath)) {
+        Write-Log -Message "Checking for Previous Backup: $FilePath Not Found"
+        
+        # Create a backup of the file
+        Copy-Item -Path $FilePath -Destination $BackupPath -Force
+
+        # Verify that the backup file exists
+        $backupFileExists = Test-Path -Path $BackupPath
+
+        # Return the status
+        if ($backupFileExists) {
+            return "SUCCESS"
+        } else {
+            return "FAILED"
+        }
+    }else{
+        Write-Log -Message "Checking for Previous Backup: $FilePath Found"
+        Write-Host "Previous Backup Exist!! please Verify $FilePath" -ForegroundColor Red
+        Write-Host "__________________________________________________________________________________" -ForegroundColor Red
+        Write-Host "This script will create a backup file of the config, but it there is a backup preexisting the script will not continue." -ForegroundColor Yellow
+        Write-Host "Please Remove or Rename $FilePath and rerun the script" -ForegroundColor Yellow
+        return "Failed"
+    }
+
 
     # Create a backup of the file
     Copy-Item -Path $FilePath -Destination $BackupPath -Force
